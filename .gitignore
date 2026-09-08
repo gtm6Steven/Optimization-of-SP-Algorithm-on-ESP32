@@ -1,0 +1,18 @@
+# ESP-IDF build output
+build/
+
+# Generated SDK configuration
+sdkconfig
+sdkconfig.old
+
+# IDE local config
+.vscode/
+.clangd/
+
+# Backup files
+*.bak_*
+
+# OS files
+Thumbs.db
+.DS_Store
+docs/benchmark_result_*.md

@@ -1,0 +1,70 @@
+# ============================================================
+# SPHINCS+-SHA2-128s 软件基准测试配置
+# 目标芯片：ESP32-S3
+# 原则：纯软件 SHA256，关闭外设/网络/文件系统干扰，固定 CPU 频率
+# ============================================================
+
+# ---------- 目标芯片 ----------
+CONFIG_IDF_TARGET="esp32s3"
+
+# ---------- CPU 与 Flash ----------
+# CPU 固定 240 MHz
+CONFIG_ESP_DEFAULT_CPU_FREQ_MHZ_240=y
+CONFIG_ESP_DEFAULT_CPU_FREQ_MHZ=240
+
+# Flash QIO、80 MHz
+CONFIG_ESPTOOLPY_FLASHMODE_QIO=y
+CONFIG_ESPTOOLPY_FLASHMODE="qio"
+CONFIG_ESPTOOLPY_FLASHFREQ_80M=y
+CONFIG_ESPTOOLPY_FLASHFREQ="80m"
+
+# ---------- 编译优化 ----------
+# -O2 对应 ESP-IDF 的 PERF 优化档
+CONFIG_COMPILER_OPTIMIZATION_PERF=y
+
+# ESP-IDF v5.3.4 没有单独的 LTO Kconfig 开关，默认即为关闭。
+# 请勿在 CMake 中手动加入 -flto，即为 LTO 关闭状态。
+
+# ---------- 禁用硬件 SHA 加速 ----------
+# 关闭 mbedTLS 硬件 SHA 接口，SHA256 完全走软件实现
+CONFIG_MBEDTLS_HARDWARE_SHA=n
+
+# ---------- 关闭无线与蓝牙 ----------
+CONFIG_ESP_WIFI_ENABLED=n
+CONFIG_ESP_COEX_ENABLED=n
+CONFIG_BT_ENABLED=n
+
+# ---------- 关闭 PSRAM ----------
+CONFIG_SPIRAM=n
+
+# ---------- 文件系统 ----------
+# sdkconfig 只能把 FatFS/SPIFFS 裁剪到最小体积；
+# 若要从链接层面彻底剔除 fatfs/spiffs/wear_levelling，
+# 还需要在根 CMakeLists 的 COMPONENTS 列表中裁剪组件。
+CONFIG_FATFS_VOLUME_COUNT=1
+CONFIG_SPIFFS_MAX_PARTITIONS=1
+
+# ---------- 关闭 heap tracing / heap poisoning ----------
+CONFIG_HEAP_TRACING_OFF=y
+CONFIG_HEAP_POISONING_DISABLED=y
+
+# ---------- 关闭运行时断言 ----------
+CONFIG_COMPILER_OPTIMIZATION_ASSERTIONS_DISABLE=y
+CONFIG_HAL_ASSERTION_DISABLE=y
+CONFIG_COMPILER_STACK_CHECK_MODE_NONE=y
+
+# ---------- 日志降噪 ----------
+# 默认级别 Warning
+CONFIG_LOG_DEFAULT_LEVEL_WARN=y
+CONFIG_LOG_DEFAULT_LEVEL=2
+CONFIG_LOG_MAXIMUM_EQUALS_DEFAULT=y
+CONFIG_LOG_MAXIMUM_LEVEL=2
+CONFIG_LOG_COLORS=n
+
+# ---------- 基准测试必要配置 ----------
+# 单轮签名约 174 秒，必须关闭任务看门狗
+CONFIG_ESP_TASK_WDT_EN=n
+CONFIG_ESP_TASK_WDT_INIT=n
+
+# 主任务栈保留足够空间
+CONFIG_ESP_MAIN_TASK_STACK_SIZE=8192
